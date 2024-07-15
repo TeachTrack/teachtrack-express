@@ -4,6 +4,7 @@ import HTTP_STATUS from 'http-status-codes';
 import { ErrorMessages } from '../utils/enums/error-messages.enum';
 import JWT from 'jsonwebtoken';
 import { config } from '../configs/config';
+import { UserRoles } from '../features/user/utils/user.enum';
 
 export const authRequired = (req: Request, res: Response, next: NextFunction) => {
   const bearerToken = req.header('Authorization');
@@ -14,8 +15,13 @@ export const authRequired = (req: Request, res: Response, next: NextFunction) =>
 
   try {
     const decoded: JwtPayload = JWT.verify(token, config.jwtSecret) as JwtPayload;
-    req.userId = decoded.userId;
-    req.role = decoded.role;
+
+    req.user = {
+      _id: decoded.user?._id as string,
+      role: decoded.user?.role as UserRoles,
+      schoolIds: decoded.user?.schoolIds as string[],
+    };
+
     next();
   } catch (error) {
     res.status(HTTP_STATUS.UNAUTHORIZED).json({ error: ErrorMessages.Unauthorized });

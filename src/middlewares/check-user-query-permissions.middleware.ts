@@ -6,7 +6,7 @@ import HTTP_STATUS from 'http-status-codes';
 import { ErrorMessages } from '../utils/enums/error-messages.enum';
 
 export const checkGetUsersQueryPermissions = async (req: Request, res: Response, next: NextFunction) => {
-  const { role: userRole } = req;
+  const { role: userRole } = req.user || {};
   const { role: queryRole } = req.query;
 
   if (!queryRole) {

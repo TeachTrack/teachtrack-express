@@ -11,9 +11,13 @@ export interface IUserDocument extends Document {
   gender: UserGender;
   age: number;
   password: string;
+  courseIds: ObjectId[];
+  schoolIds: ObjectId[];
   guardianName: string | undefined;
   guardianPhoneNumber: string | undefined;
   address: string | undefined;
+  salary: number | undefined;
+  birthday: Date | undefined;
   comparePassword: (password: string) => Promise<boolean>;
   hashPassword: (password: string) => Promise<string>;
 }
@@ -32,7 +36,10 @@ export interface IRegisterUserBody
     | 'guardianName'
     | 'guardianPhoneNumber'
     | 'address'
+    | 'salary'
+    | 'birthday'
   > {
   confirmPassword: string;
+  schoolSubdomain: string;
   status?: UserStatus;
 }

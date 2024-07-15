@@ -1,7 +1,7 @@
 import { BadRequestError, NotFoundError } from '../../middlewares/error-handler.middleware';
 import { ErrorMessages } from '../../utils/enums/error-messages.enum';
 import { Request, Response } from '../../utils/interfaces/express.interface';
-import { UserRoles, UserStatus } from './utils/user.enum';
+import { UserStatus } from './utils/user.enum';
 import { ILoginUserBody, IRegisterUserBody, IUserDocument } from './utils/user.interface';
 import { getActiveUserById, getUserByPhoneNumber } from './user.service';
 import HTTP_STATUS from 'http-status-codes';
@@ -9,6 +9,7 @@ import { generateToken } from './utils/user.utils';
 import Paginator from '../../utils/helpers/pagination';
 import { UserModel } from './user.model';
 import { Types } from 'mongoose';
+import { getActiveSchoolById } from '../school/school.service';
 
 export const loginUserController = async (req: Request<ILoginUserBody>, res: Response): Promise<void> => {
   const { password, phoneNumber } = req.body;
@@ -29,7 +30,7 @@ export const loginUserController = async (req: Request<ILoginUserBody>, res: Res
 };
 
 export const registerUserController = async (req: Request<IRegisterUserBody>, res: Response): Promise<void> => {
-  const { confirmPassword, password, phoneNumber, ...body } = req.body;
+  const { confirmPassword, password, phoneNumber, schoolSubdomain, ...body } = req.body;
 
   const existingUser = await getUserByPhoneNumber(phoneNumber);
 

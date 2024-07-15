@@ -19,3 +19,7 @@ export const getActiveUserById = async (id: ObjectId): Promise<IUserDocument> =>
 
   return existingUser;
 };
+
+export const getUserById = async (id: ObjectId): Promise<IUserDocument | undefined> => {
+  return (await UserModel.findById(id)) as IUserDocument | undefined;
+};

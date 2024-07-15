@@ -7,7 +7,7 @@ import { ErrorMessages } from '../utils/enums/error-messages.enum';
 import { userCreateRolePermissions } from '../utils/helpers/roles-permissions';
 
 export const checkUserCreationPermissions = (req: Request, res: Response, next: NextFunction) => {
-  const role = req.role;
+  const { role } = req.user || {};
   const { role: newUserRole } = req.body;
 
   if (!role) throw new BadRequestError(ErrorMessages.Unauthorized);

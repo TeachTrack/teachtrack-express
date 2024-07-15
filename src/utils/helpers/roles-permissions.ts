@@ -9,6 +9,21 @@ export const roleHierarchy: { [key in UserRoles]: number } = {
   [UserRoles.GUARDIAN]: 1,
 };
 
+export const rolePermissions: { [key in UserRoles]: UserRoles[] } = {
+  [UserRoles.ADMIN]: [UserRoles.ADMIN, UserRoles.STAFF, UserRoles.TEACHER, UserRoles.STUDENT],
+  [UserRoles.SUPER_ADMIN]: [
+    UserRoles.SUPER_ADMIN,
+    UserRoles.ADMIN,
+    UserRoles.STAFF,
+    UserRoles.TEACHER,
+    UserRoles.STUDENT,
+  ],
+  [UserRoles.STAFF]: [UserRoles.STAFF, UserRoles.STUDENT],
+  [UserRoles.TEACHER]: [UserRoles.TEACHER, UserRoles.STUDENT],
+  [UserRoles.STUDENT]: [UserRoles.STUDENT],
+  [UserRoles.GUARDIAN]: [UserRoles.GUARDIAN],
+};
+
 export const userCreateRolePermissions: { [key in UserRoles]: UserRoles[] } = {
   [UserRoles.SUPER_ADMIN]: [
     UserRoles.ADMIN,

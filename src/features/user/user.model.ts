@@ -15,7 +15,11 @@ const userSchema: Schema = new Schema(
     password: { type: String, required: true },
     guardianName: { type: String },
     guardianPhoneNumber: { type: String },
+    schoolIds: [{ type: Schema.Types.ObjectId, ref: 'Schools', required: true }],
+    courseIds: [{ type: Schema.Types.ObjectId, ref: 'Courses' }],
     address: { type: String },
+    salary: { type: Number },
+    birthday: { type: Date },
   },
   {
     timestamps: true,
@@ -53,4 +57,4 @@ userSchema.methods.hashPassword = async function (password: string) {
   return hash;
 };
 
-export const UserModel = mongoose.model<IUserDocument>('User', userSchema);
+export const UserModel = mongoose.model<IUserDocument>('Users', userSchema);
