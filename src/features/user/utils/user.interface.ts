@@ -40,6 +40,5 @@ export interface IRegisterUserBody
     | 'birthday'
   > {
   confirmPassword: string;
-  schoolSubdomain: string;
   status?: UserStatus;
 }

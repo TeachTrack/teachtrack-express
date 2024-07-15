@@ -9,7 +9,6 @@ import { generateToken } from './utils/user.utils';
 import Paginator from '../../utils/helpers/pagination';
 import { UserModel } from './user.model';
 import { Types } from 'mongoose';
-import { getActiveSchoolById } from '../school/school.service';
 
 export const loginUserController = async (req: Request<ILoginUserBody>, res: Response): Promise<void> => {
   const { password, phoneNumber } = req.body;
