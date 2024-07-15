@@ -26,7 +26,6 @@ export const createSchool = async (req: Request<ISchoolRegisterBody>, res: Respo
 };
 
 export const updateSchool = async (req: Request<ISchoolUpdateBody>, res: Response): Promise<void> => {
-  // Todo: validatsiya qo'shish
   const { id } = req.params;
   const schoolId = new Types.ObjectId(id);
 
@@ -51,8 +50,6 @@ export const updateSchool = async (req: Request<ISchoolUpdateBody>, res: Respons
 };
 
 export const assignDirectorSchool = async (req: Request<{ userId: string }>, res: Response): Promise<void> => {
-  // Todo: validatsiya qo'shish
-
   const { userId } = req.body;
   const { id } = req.params;
 
