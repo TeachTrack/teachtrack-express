@@ -11,6 +11,14 @@ import { BadRequestError, NotFoundError } from '../../middlewares/error-handler.
 import { ErrorMessages } from '../../utils/enums/error-messages.enum';
 import { SchoolStatus } from './utils/school.enum';
 
+/**
+ * Creates a new school with the provided information.
+ *
+ * @param {Request<ISchoolRegisterBody>} req - The request object containing the school information.
+ * @param {Response} res - The response object used to send the created school as a JSON response.
+ * @returns {Promise<void>} A promise that resolves when the school is created and saved successfully.
+ * @throws {BadRequestError} If a school with the specified subdomain already exists.
+ */
 export const createSchool = async (req: Request<ISchoolRegisterBody>, res: Response): Promise<void> => {
   const { subdomain, ...newSchool } = req.body;
 
@@ -25,6 +33,15 @@ export const createSchool = async (req: Request<ISchoolRegisterBody>, res: Respo
   res.status(HTTP_STATUS.CREATED).json(school);
 };
 
+/**
+ * Updates a school with new information.
+ *
+ * @async
+ * @param {Request<ISchoolUpdateBody>} req - The request object containing the school update information.
+ * @param {Response} res - The response object used to send the updated school information.
+ * @returns {Promise<void>} A promise that resolves once the school is updated.
+ * @throws {NotFoundError} - If the school is not found or has been deleted.
+ */
 export const updateSchool = async (req: Request<ISchoolUpdateBody>, res: Response): Promise<void> => {
   const { id } = req.params;
   const schoolId = new Types.ObjectId(id);
@@ -49,6 +66,15 @@ export const updateSchool = async (req: Request<ISchoolUpdateBody>, res: Respons
   res.status(HTTP_STATUS.OK).json(updatedSchool);
 };
 
+/**
+ * Assigns a director to a school.
+ *
+ * @param {Request<{ userId: string }>} req - The request object containing the user ID.
+ * @param {Response} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves when the director is assigned to the school.
+ * @throws {NotFoundError} - If the school is not found or has been deleted.
+ * @throws {BadRequestError} - If the user's role is not ADMIN.
+ */
 export const assignDirectorSchool = async (req: Request<{ userId: string }>, res: Response): Promise<void> => {
   const { userId } = req.body;
   const { id } = req.params;
@@ -74,6 +100,14 @@ export const assignDirectorSchool = async (req: Request<{ userId: string }>, res
   res.status(HTTP_STATUS.OK).json(updatedSchool);
 };
 
+/**
+ * Retrieves paginated schools based on the provided request parameters.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ *
+ * @returns {Promise<void>} - A promise that resolves when the schools are retrieved and the response is sent.
+ */
 export const getSchools = async (req: Request, res: Response): Promise<void> => {
   const page = req.query.page as string | undefined;
   const limit = req.query.limit as string | undefined;
@@ -85,11 +119,21 @@ export const getSchools = async (req: Request, res: Response): Promise<void> => 
   res.status(HTTP_STATUS.OK).json(paginatedSchools);
 };
 
+/**
+ * Retrieves an active school object by its ID and sends it as a JSON response.
+ *
+ * @param {Request} req - The Request object.
+ * @param {Response} res - The Response object.
+ * @returns {Promise<void>} A Promise that resolves once the school object is sent.
+ *
+ * @throws {Error} If an error occurs while retrieving the school object.
+ * @throws {TypeError} If the school ID is not valid.
+ */
 export const getSchool = async (req: Request, res: Response): Promise<void> => {
   const schoolId = req.params.id;
-  const schooObjectId = new Types.ObjectId(schoolId);
+  const schoolObjectId = new Types.ObjectId(schoolId);
 
-  const school = await getActiveSchoolById(schooObjectId);
+  const school = await getActiveSchoolById(schoolObjectId);
 
   res.status(HTTP_STATUS.OK).json(school);
 };
