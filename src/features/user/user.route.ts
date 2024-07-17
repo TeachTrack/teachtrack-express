@@ -1,6 +1,12 @@
 import { Router } from 'express';
 import { asyncWrapper } from '../../helper/async-wrapper';
-import { getUserController, getStaffsController, loginUserController, registerUserController } from './user.controller';
+import {
+  getUserController,
+  getStaffsController,
+  loginUserController,
+  registerUserController,
+  getMe,
+} from './user.controller';
 import { authRequired } from '../../middlewares/auth-required.middleware';
 import { checkUserCreationPermissions } from '../../middlewares/check-user-create-permissions.middleware';
 import { checkGetUsersQueryPermissions } from '../../middlewares/check-user-query-permissions.middleware';
@@ -11,6 +17,7 @@ const userRouter = Router();
 
 userRouter.post('/auth/login', validator(loginValidator), asyncWrapper(loginUserController));
 userRouter.post('/auth/register', validator(registerValidator), authRequired, checkUserCreationPermissions, asyncWrapper(registerUserController));
+userRouter.get("/me", authRequired, asyncWrapper(getMe))
 userRouter.get('/users/:userId', authRequired, asyncWrapper(getUserController));
 userRouter.get('/users', authRequired, checkGetUsersQueryPermissions, asyncWrapper(getStaffsController));
 

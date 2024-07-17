@@ -3,7 +3,7 @@ import { ErrorMessages } from '../../utils/enums/error-messages.enum';
 import { Request, Response } from '../../utils/interfaces/express.interface';
 import { UserStatus } from './utils/user.enum';
 import { ILoginUserBody, IRegisterUserBody, IUserDocument } from './utils/user.interface';
-import { getActiveUserById, getUserByPhoneNumber } from './user.service';
+import { getActiveUserById, getUserById, getUserByPhoneNumber } from './user.service';
 import HTTP_STATUS from 'http-status-codes';
 import { generateToken } from './utils/user.utils';
 import Paginator from '../../utils/helpers/pagination';
@@ -114,4 +114,17 @@ export const getStaffsController = async (req: Request, res: Response): Promise<
   const paginatedUsers = await paginator.paginate();
 
   res.status(HTTP_STATUS.OK).json(paginatedUsers);
+};
+
+/**
+ * Retrieves an active user by their ID and sends the user object as JSON response.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A Promise that resolves once the user object is sent as JSON response.
+ */
+export const getMe = async (req: Request, res: Response): Promise<void> => {
+  const userId = req?.user?._id;
+  const objectUserId = new Types.ObjectId(userId);
+  const user = await getActiveUserById(objectUserId);
+  res.status(HTTP_STATUS.OK).json(user);
 };

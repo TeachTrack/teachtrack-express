@@ -11,6 +11,7 @@ const schoolModel: Schema = new Schema(
     status: { type: String, default: SchoolStatus.Inactive, enum: SchoolStatus },
     directorId: { type: Schema.Types.ObjectId, ref: 'Users', require: true },
     logo: { type: String },
+      price: { type: Number, required: true}
   },
   { timestamps: true },
 );
