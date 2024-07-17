@@ -12,5 +12,6 @@ export enum ErrorMessages {
   SchoolAlreadyExists = 'SCHOOL_ALREADY_EXISTS',
   DirectorRoleMustBeAdmin = 'DIRECTOR_ROLE_MUST_BE_ADMIN',
   SubdomainAlreadyExists = 'SUBDOMAIN_ALREADY_EXISTS',
-  VALIDATION_ERROR="VALIDATION_ERROR"
+  VALIDATION_ERROR = 'VALIDATION_ERROR',
+  BadRequest = 'BAD_REQUEST',
 }

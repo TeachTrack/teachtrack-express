@@ -9,6 +9,7 @@ import { generateToken } from './utils/user.utils';
 import Paginator from '../../utils/helpers/pagination';
 import { UserModel } from './user.model';
 import { Types } from 'mongoose';
+import { getDocumentFromCache } from '../../configs/redis.config';
 
 /**
  * Log in a user.
@@ -85,9 +86,9 @@ export const getUserController = async (req: Request, res: Response): Promise<vo
 
   const id = new Types.ObjectId(userId);
 
-  const user = await getActiveUserById(id);
+  const user = await getDocumentFromCache<IUserDocument>(`user:id:${userId}`, getActiveUserById.bind(null, id));
 
-  res.status(HTTP_STATUS.OK).json({ user });
+  res.status(HTTP_STATUS.OK).json(user);
 };
 
 /**
@@ -98,7 +99,6 @@ export const getUserController = async (req: Request, res: Response): Promise<vo
  * @returns {Promise<void>} - Resolves after successful execution.
  */
 export const getStaffsController = async (req: Request, res: Response): Promise<void> => {
-  // TODO: User roliga qarab natija chiqarish
   const page = req.query.page as string | undefined;
   const limit = req.query.limit as string | undefined;
   const searchText = req.query.search as string | undefined;

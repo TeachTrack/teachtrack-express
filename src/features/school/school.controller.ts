@@ -26,7 +26,7 @@ export const createSchool = async (req: Request<ISchoolRegisterBody>, res: Respo
 
   if (existingSchool) throw new BadRequestError(ErrorMessages.SubdomainAlreadyExists);
 
-  const school = await SchoolModel.create({ ...newSchool, subdomain, directorId: null });
+  const school = await SchoolModel.create({ ...newSchool, subdomain });
 
   await school.save();
 

@@ -10,12 +10,13 @@ export interface ISchoolDocument extends Document {
   subdomain: string;
   status: SchoolStatus;
   directorId: ObjectId;
+  price: string;
   logo?: string;
 }
 
 export interface ISchoolRegisterBody
-  extends Pick<ISchoolDocument, 'name' | 'phoneNumber' | 'address'  | 'logo' | 'subdomain'> {
-  directorId?: string
+  extends Pick<ISchoolDocument, 'name' | 'phoneNumber' | 'address' | 'logo' | 'subdomain' | 'price'> {
+  directorId?: string;
 }
 
 export interface ISchoolUpdateBody {
