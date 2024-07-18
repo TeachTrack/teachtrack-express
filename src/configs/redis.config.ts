@@ -22,6 +22,10 @@ client.on('error', function (error) {
 
 client.on('connect', () => log.info('connected to the redis'));
 
+export async function cacheDocument<T>(cacheKey: string, document: T): Promise<void> {
+  await client.set(cacheKey, JSON.stringify(document), { EX: config.redis.contentCacheDuration });
+}
+
 export async function getDocumentFromCache<T = any>(
   cacheKey: string,
   fetchFunction: () => Promise<T | undefined>,
@@ -31,7 +35,7 @@ export async function getDocumentFromCache<T = any>(
   if (!document) {
     document = await fetchFunction();
     if (document) {
-      await client.set(cacheKey, JSON.stringify(document), { EX: 6000 });
+      await cacheDocument<T>(cacheKey, document);
     }
   }
   return document;

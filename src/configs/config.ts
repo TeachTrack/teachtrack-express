@@ -13,6 +13,7 @@ export const config = {
     host: process.env.REDIS_HOST || '127.0.0.1',
     port: parseInt(process.env.REDIS_PORT || '6379'),
     password: process.env.REDIS_PASSWORD || '',
+    contentCacheDuration: parseInt(process.env.REDIS_CONTENT_CACHE_DURATION_MILLIS || '60000'),
   },
   caching: {
     contentCacheDuration: parseInt(process.env.CONTENT_CACHE_DURATION_MILLIS || '600000'),

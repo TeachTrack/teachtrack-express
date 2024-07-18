@@ -3,7 +3,7 @@ import { ErrorMessages } from '../../utils/enums/error-messages.enum';
 import { Request, Response } from '../../utils/interfaces/express.interface';
 import { UserStatus } from './utils/user.enum';
 import { ILoginUserBody, IRegisterUserBody, IUserDocument } from './utils/user.interface';
-import { getActiveUserById, getUserById, getUserByPhoneNumber } from './user.service';
+import { getActiveUserById, getUserByPhoneNumber } from './user.service';
 import HTTP_STATUS from 'http-status-codes';
 import { generateToken } from './utils/user.utils';
 import Paginator from '../../utils/helpers/pagination';
