@@ -122,7 +122,7 @@ export const getStaffsController = async (req: Request, res: Response): Promise<
  * @param {Object} res - The response object.
  * @returns {Promise<void>} - A Promise that resolves once the user object is sent as JSON response.
  */
-export const getMe = async (req: Request, res: Response): Promise<void> => {
+export const getMeController = async (req: Request, res: Response): Promise<void> => {
   const userId = req?.user?._id;
   const objectUserId = new Types.ObjectId(userId);
   const user = await getActiveUserById(objectUserId);

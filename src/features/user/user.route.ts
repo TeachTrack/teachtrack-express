@@ -5,7 +5,7 @@ import {
   getStaffsController,
   loginUserController,
   registerUserController,
-  getMe,
+  getMeController,
 } from './user.controller';
 import { authRequired } from '../../middlewares/auth-required.middleware';
 import { checkUserCreationPermissions } from '../../middlewares/check-user-create-permissions.middleware';
@@ -16,8 +16,14 @@ import { loginValidator, registerValidator } from './user.validator';
 const userRouter = Router();
 
 userRouter.post('/auth/login', validator(loginValidator), asyncWrapper(loginUserController));
-userRouter.post('/auth/register', validator(registerValidator), authRequired, checkUserCreationPermissions, asyncWrapper(registerUserController));
-userRouter.get("/me", authRequired, asyncWrapper(getMe))
+userRouter.post(
+  '/auth/register',
+  validator(registerValidator),
+  authRequired,
+  checkUserCreationPermissions,
+  asyncWrapper(registerUserController),
+);
+userRouter.get('/me', authRequired, asyncWrapper(getMeController));
 userRouter.get('/users/:userId', authRequired, asyncWrapper(getUserController));
 userRouter.get('/users', authRequired, checkGetUsersQueryPermissions, asyncWrapper(getStaffsController));
 
