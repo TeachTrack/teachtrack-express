@@ -13,9 +13,24 @@ const log: Logger = Logger.createLogger({ name: 'app' });
 
 // Security middlewares
 app.use(helmet());
-app.use(cors({ origin: config.corsUrl, optionsSuccessStatus: 200 }));
 
-// Standart middlewares
+// CORS configuration
+const allowedOrigins = [config.corsUrl, 'http://127.0.0.1:5173'].filter(Boolean);
+
+const corsOptions = {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    if (allowedOrigins.includes(origin as string) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
+
+// Standard middlewares
 app.use(json({ limit: '50mb' }));
 app.use(urlencoded({ extended: false, limit: '50mb' }));
 
