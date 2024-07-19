@@ -8,7 +8,8 @@
     "build": "tsc",
     "lint": "eslint 'src/**/*.ts'",
     "format": "prettier --write 'src/**/*.ts'",
-    "start": "nodemon -r dotenv/config dist/server.js | bunyan"
+    "start": "nodemon -r dotenv/config dist/server.js | bunyan",
+    "prestart": "tsc"
   },
   "keywords": [],
   "author": "",
