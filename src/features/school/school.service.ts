@@ -2,6 +2,9 @@ import { ObjectId } from 'mongodb';
 import { SchoolModel } from './school.model';
 import { ISchoolDocument, ISchoolResponse } from './utils/school.interface';
 import { getDocumentFromCache, removeCachedDocument } from '../../configs/redis.config';
+import Paginator, { PaginatedResult, PaginateOptions } from '../../utils/helpers/pagination';
+import { IUserDocument } from '../user/utils/user.interface';
+import { UserModel } from '../user/user.model';
 
 const populateDirectorForSchool = async (schoolId: ObjectId) => {
   const aggregation = (await SchoolModel.aggregate([
@@ -75,4 +78,13 @@ export const updateSchoolById = async (id: ObjectId, school: ISchoolDocument): P
 
   await removeCachedDocument(`school:id:${id}`);
   return updatedSchool;
+};
+
+export const getPaginatedUsersBySchoolId = async (
+  id: ObjectId,
+  options: PaginateOptions,
+): Promise<PaginatedResult<IUserDocument>> => {
+  const users = new Paginator<IUserDocument>(UserModel, options, { schoolId: id });
+
+  return await users.paginate();
 };

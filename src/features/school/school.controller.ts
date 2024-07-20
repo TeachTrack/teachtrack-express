@@ -3,7 +3,7 @@ import { ISchoolDocument, ISchoolRegisterBody, ISchoolUpdateBody } from './utils
 import { SchoolModel } from './school.model';
 import HTTP_STATUS from 'http-status-codes';
 import Paginator from '../../utils/helpers/pagination';
-import { getSchoolById, getSchoolBySubdomain, updateSchoolById } from './school.service';
+import { getPaginatedUsersBySchoolId, getSchoolById, getSchoolBySubdomain, updateSchoolById } from './school.service';
 import { Types } from 'mongoose';
 import { getActiveUserById } from '../user/user.service';
 import { UserRoles } from '../user/utils/user.enum';
@@ -11,6 +11,9 @@ import { BadRequestError, NotFoundError } from '../../middlewares/error-handler.
 import { ErrorMessages } from '../../utils/enums/error-messages.enum';
 import { SchoolStatus } from './utils/school.enum';
 import { SuccessMessages } from '../../utils/enums/success-messages.enum';
+import pagination from '../../utils/helpers/pagination';
+import { IUserDocument } from '../user/utils/user.interface';
+import { ObjectId } from 'mongodb';
 
 /**
  * Creates a new school with the provided information.
@@ -119,6 +122,7 @@ export const getSchools = async (req: Request, res: Response): Promise<void> => 
   const page = req.query.page as string | undefined;
   const limit = req.query.limit as string | undefined;
 
+  // TODO: move to service
   const schools = new Paginator<ISchoolDocument>(SchoolModel, { page, limit });
 
   const paginatedSchools = await schools.paginate();
@@ -162,14 +166,14 @@ export const getSchool = async (req: Request, res: Response): Promise<void> => {
  *
  * @returns {Promise<void>} - A promise that resolves when the users are retrieved and the response is sent.
  */
-// TODO: Users collection qilinganda tugatib qo'yich kerak
 export const getUsersBySchoolId = async (req: Request, res: Response): Promise<any> => {
   const page = req.query.page as string | undefined;
   const limit = req.query.limit as string | undefined;
+  const schoolId = req.params.id;
+  const schoolObjectId = new Types.ObjectId(schoolId);
 
-  res
-    .status(HTTP_STATUS.OK)
-    .json({ data: [], totalData: 0, totalPages: 0, page: page, limit: limit, hasNextPage: false, hasPrevPage: false });
+  const users = await getPaginatedUsersBySchoolId(schoolObjectId, { page, limit });
+  res.status(HTTP_STATUS.OK).json(users);
 };
 
 /**
