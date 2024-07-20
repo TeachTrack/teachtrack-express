@@ -26,6 +26,10 @@ export async function cacheDocument<T>(cacheKey: string, document: T): Promise<v
   await client.set(cacheKey, JSON.stringify(document), { EX: config.redis.contentCacheDuration });
 }
 
+export async function removeCachedDocument<T>(cacheKey: string): Promise<void> {
+  await client.del(cacheKey);
+}
+
 export async function getDocumentFromCache<T = any>(
   cacheKey: string,
   fetchFunction: () => Promise<T | undefined>,

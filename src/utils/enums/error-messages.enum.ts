@@ -14,4 +14,5 @@ export enum ErrorMessages {
   SubdomainAlreadyExists = 'SUBDOMAIN_ALREADY_EXISTS',
   VALIDATION_ERROR = 'VALIDATION_ERROR',
   BadRequest = 'BAD_REQUEST',
+  SomethingWentWrong = 'SOMETHING_WENT_WRONG',
 }

@@ -3,13 +3,14 @@ import { ISchoolDocument, ISchoolRegisterBody, ISchoolUpdateBody } from './utils
 import { SchoolModel } from './school.model';
 import HTTP_STATUS from 'http-status-codes';
 import Paginator from '../../utils/helpers/pagination';
-import { getActiveSchoolById, getSchoolById, getSchoolBySubdomain, updateSchoolById } from './school.service';
+import { getSchoolById, getSchoolBySubdomain, updateSchoolById } from './school.service';
 import { Types } from 'mongoose';
 import { getActiveUserById } from '../user/user.service';
 import { UserRoles } from '../user/utils/user.enum';
 import { BadRequestError, NotFoundError } from '../../middlewares/error-handler.middleware';
 import { ErrorMessages } from '../../utils/enums/error-messages.enum';
 import { SchoolStatus } from './utils/school.enum';
+import { SuccessMessages } from '../../utils/enums/success-messages.enum';
 
 /**
  * Creates a new school with the provided information.
@@ -61,9 +62,11 @@ export const updateSchool = async (req: Request<ISchoolUpdateBody>, res: Respons
     status: status || existingSchool.status,
   } as ISchoolDocument;
 
-  const updatedSchool = await updateSchoolById(existingSchool.id, updatingSchool);
+  const updatedSchool = await updateSchoolById(existingSchool._id, updatingSchool);
 
-  res.status(HTTP_STATUS.OK).json(updatedSchool);
+  if (!updatedSchool) throw new BadRequestError(ErrorMessages.SomethingWentWrong);
+
+  res.status(HTTP_STATUS.OK).json({ message: SuccessMessages.UpdatedSuccessfully });
 };
 
 /**
@@ -95,9 +98,11 @@ export const assignDirectorSchool = async (req: Request<{ userId: string }>, res
     directorId: user.id,
   } as ISchoolDocument;
 
-  const updatedSchool = await updateSchoolById(school.id, updatingSchool);
+  const updatedSchool = await updateSchoolById(school._id, updatingSchool);
 
-  res.status(HTTP_STATUS.OK).json(updatedSchool);
+  if (!updatedSchool) throw new BadRequestError(ErrorMessages.SomethingWentWrong);
+
+  res.status(HTTP_STATUS.OK).json({ message: SuccessMessages.UpdatedSuccessfully });
 };
 
 /**
@@ -133,7 +138,11 @@ export const getSchool = async (req: Request, res: Response): Promise<void> => {
   const schoolId = req.params.id;
   const schoolObjectId = new Types.ObjectId(schoolId);
 
-  const school = await getActiveSchoolById(schoolObjectId);
+  const school = await getSchoolById(schoolObjectId);
+
+  if (!school) throw new NotFoundError(ErrorMessages.SchoolNotFound);
+  if (school.status === SchoolStatus.Deleted) throw new NotFoundError(ErrorMessages.SchoolNotFound);
+  if (school.status === SchoolStatus.Inactive) throw new NotFoundError(ErrorMessages.SchoolInactive);
 
   res.status(HTTP_STATUS.OK).json(school);
 };

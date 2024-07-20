@@ -13,7 +13,14 @@ const schoolModel: Schema = new Schema(
     logo: { type: String },
     price: { type: Number, required: true },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    toJSON: {
+      transform(_, ret) {
+        delete ret.__v;
+      },
+    },
+  },
 );
 
 export const SchoolModel = mongoose.model<ISchoolDocument>('Schools', schoolModel);
