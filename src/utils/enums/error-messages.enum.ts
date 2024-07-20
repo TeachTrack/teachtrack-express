@@ -1,5 +1,5 @@
 export enum ErrorMessages {
-  UserNotFoud = 'USER_NOT_FOUND',
+  UserNotFound = 'USER_NOT_FOUND',
   InvalidCredentials = 'INVALID_CREDENTIALS',
   UserInactive = 'USER_INACTIVE',
   UserAlreadyExists = 'USER_ALREADY_EXISTS',
@@ -15,4 +15,5 @@ export enum ErrorMessages {
   VALIDATION_ERROR = 'VALIDATION_ERROR',
   BadRequest = 'BAD_REQUEST',
   SomethingWentWrong = 'SOMETHING_WENT_WRONG',
+  InternalServerError = 'INTERNAL_SERVER_ERROR',
 }

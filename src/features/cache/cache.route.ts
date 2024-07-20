@@ -7,6 +7,6 @@ import { clearCache } from './cache.controller';
 
 const cacheRouter = Router();
 
-cacheRouter.post('/clear-cache', authRequired, requireAccess(UserRoles.SUPER_ADMIN), asyncWrapper(clearCache));
+cacheRouter.post('/clear-cache', authRequired, asyncWrapper(clearCache));
 
 export { cacheRouter };

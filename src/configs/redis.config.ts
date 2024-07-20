@@ -20,7 +20,10 @@ client.on('error', function (error) {
   log.error('Redis Error:', error);
 });
 
-client.on('connect', () => log.info('connected to the redis'));
+client.on('connect', async () => {
+  await client.flushDb();
+  log.info('connected to the redis: ' + config.redis.host);
+});
 
 export async function cacheDocument<T>(cacheKey: string, document: T): Promise<void> {
   await client.set(cacheKey, JSON.stringify(document), { EX: config.redis.contentCacheDuration });

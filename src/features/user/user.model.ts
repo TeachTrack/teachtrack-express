@@ -7,15 +7,14 @@ import bcrypt from 'bcrypt';
 const userSchema: Schema = new Schema(
   {
     fullName: { type: String, required: true },
-    phoneNumber: { type: String, required: true, unique: true },
+    phoneNumber: { type: String, required: true },
     role: { type: String, required: true, enum: UserRoles },
     status: { type: String, enum: UserStatus, default: UserStatus.INACTIVE },
     gender: { type: String, enum: UserGender, required: true },
-    age: { type: Number, required: true },
     password: { type: String, required: true },
     guardianName: { type: String },
     guardianPhoneNumber: { type: String },
-    schoolIds: [{ type: Schema.Types.ObjectId, ref: 'Schools', required: true }],
+    schoolId: { type: Schema.Types.ObjectId, ref: 'Schools', required: true },
     courseIds: [{ type: Schema.Types.ObjectId, ref: 'Courses' }],
     address: { type: String },
     salary: { type: Number },
@@ -39,8 +38,7 @@ userSchema.pre<IUserDocument>('save', async function (next: NextFunction) {
   try {
     if (user.isModified('password')) {
       const salt = await bcrypt.genSalt(10);
-      const hash = await bcrypt.hash(user.password, salt);
-      user.password = hash;
+      user.password = await bcrypt.hash(user.password, salt);
     }
     next();
   } catch (error: any) {
@@ -53,8 +51,7 @@ userSchema.methods.comparePassword = async function (password: string) {
 };
 
 userSchema.methods.hashPassword = async function (password: string) {
-  const hash = await bcrypt.hash(password, SALT_ROUND);
-  return hash;
+  return await bcrypt.hash(password, SALT_ROUND);
 };
 
 export const UserModel = mongoose.model<IUserDocument>('Users', userSchema);

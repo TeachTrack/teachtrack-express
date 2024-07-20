@@ -15,7 +15,25 @@ const populateDirectorForSchool = async (schoolId: ObjectId) => {
       },
     },
     {
-      $unwind: '$director',
+      $unwind: {
+        path: '$director',
+        preserveNullAndEmptyArrays: true, // This ensures the director field is included even if it's null
+      },
+    },
+    {
+      $addFields: {
+        director: {
+          $cond: {
+            if: { $eq: ['$director', null] },
+            then: {
+              _id: null,
+              fullName: null,
+              phoneNumber: null,
+            },
+            else: '$director',
+          },
+        },
+      },
     },
     {
       $replaceRoot: {

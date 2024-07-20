@@ -12,7 +12,7 @@ export interface IUserDocument extends Document {
   age: number;
   password: string;
   courseIds: ObjectId[];
-  schoolIds: ObjectId[];
+  schoolId: ObjectId;
   guardianName: string | undefined;
   guardianPhoneNumber: string | undefined;
   address: string | undefined;
@@ -41,4 +41,19 @@ export interface IRegisterUserBody
   > {
   confirmPassword: string;
   status?: UserStatus;
+}
+
+export interface IUpdateUserBody {
+  fullName?: string;
+  phoneNumber?: string;
+  role?: UserRoles;
+  status?: UserStatus;
+  gender?: UserGender;
+  guardianName?: string;
+  guardianPhoneNumber?: string;
+  address?: string;
+  salary?: number;
+  birthday?: Date;
+  password?: string;
+  confirmPassword?: string;
 }

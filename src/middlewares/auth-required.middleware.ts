@@ -19,7 +19,7 @@ export const authRequired = (req: Request, res: Response, next: NextFunction) =>
     req.user = {
       _id: decoded.user?._id as string,
       role: decoded.user?.role as UserRoles,
-      schoolIds: decoded.user?.schoolIds as string[],
+      schoolId: decoded.user?.schoolId as string,
     };
 
     next();

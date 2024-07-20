@@ -21,8 +21,29 @@ export const registerValidator = Joi.object<IRegisterUserBody>({
   gender: Joi.string()
     .valid(...Object.values(UserGender))
     .required(),
-  age: Joi.number().integer().min(1).max(120).required(),
   password: Joi.string().min(6).max(128).required(),
+  confirmPassword: Joi.string()
+    .valid(Joi.ref('password'))
+    .required()
+    .messages({ 'any.only': 'Passwords do not match' }),
+  status: Joi.string()
+    .valid(...Object.values(UserStatus))
+    .optional(),
+  guardianName: Joi.string().min(1).max(100).optional(),
+  guardianPhoneNumber: Joi.string()
+    .pattern(/^\+998\d{9}$/)
+    .optional(),
+  address: Joi.string().min(1).max(200).optional(),
+  salary: Joi.number().min(0).optional(),
+  birthday: Joi.date().optional(),
+});
+
+export const updateUserValidator = Joi.object<IRegisterUserBody>({
+  fullName: Joi.string().min(1).max(100),
+  phoneNumber: Joi.string().pattern(/^\+998\d{9}$/),
+  role: Joi.string().valid(...Object.values(UserRoles)),
+  gender: Joi.string().valid(...Object.values(UserGender)),
+  password: Joi.string().min(6).max(128),
   confirmPassword: Joi.string()
     .valid(Joi.ref('password'))
     .required()

@@ -10,13 +10,13 @@ import { connectRedis } from './configs/redis.config';
 
 const app = express();
 
-const log: Logger = Logger.createLogger({ name: 'app' });
+app.set('subdomain offset', 1);
 
 // Security middlewares
 app.use(helmet());
 app.use(cors({ origin: config.corsUrl, optionsSuccessStatus: 200 }));
 
-// Standart middlewares
+// Standard middlewares
 app.use(json({ limit: '50mb' }));
 app.use(urlencoded({ extended: false, limit: '50mb' }));
 
