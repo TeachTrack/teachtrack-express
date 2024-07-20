@@ -17,7 +17,7 @@ import { SuccessMessages } from '../../utils/enums/success-messages.enum';
  *
  * @param {Request<ISchoolRegisterBody>} req - The request object containing the school information.
  * @param {Response} res - The response object used to send the created school as a JSON response.
- * @returns {Promise<void>} A promise that resolves when the school is created and saved successfully.
+ * @returns {Promise<ISchoolResponse>} A promise that resolves when the school is created and saved successfully.
  * @throws {BadRequestError} If a school with the specified subdomain already exists.
  */
 export const createSchool = async (req: Request<ISchoolRegisterBody>, res: Response): Promise<void> => {
@@ -31,7 +31,9 @@ export const createSchool = async (req: Request<ISchoolRegisterBody>, res: Respo
 
   await school.save();
 
-  res.status(HTTP_STATUS.CREATED).json(school);
+  res
+    .status(HTTP_STATUS.CREATED)
+    .json({ ...school, studentsCount: 0, coursesCount: 0, teachersCount: 0, staffsCount: 0 });
 };
 
 /**
@@ -111,7 +113,7 @@ export const assignDirectorSchool = async (req: Request<{ userId: string }>, res
  * @param {Request} req - The request object.
  * @param {Response} res - The response object.
  *
- * @returns {Promise<void>} - A promise that resolves when the schools are retrieved and the response is sent.
+ * @returns {Promise<ISchoolResponse[]>} - A promise that resolves when the schools are retrieved and the response is sent.
  */
 export const getSchools = async (req: Request, res: Response): Promise<void> => {
   const page = req.query.page as string | undefined;
@@ -121,7 +123,12 @@ export const getSchools = async (req: Request, res: Response): Promise<void> => 
 
   const paginatedSchools = await schools.paginate();
 
-  res.status(HTTP_STATUS.OK).json(paginatedSchools);
+  // TODO: Student, Courses, Teachers, Staffs collectionlari qilinganda real datalar bilan qo'shib ketish kerak
+  const fakeCountData = paginatedSchools.data.map(school => {
+    return { ...school.toJSON(), studentsCount: 0, coursesCount: 0, teachersCount: 0, staffsCount: 0 };
+  });
+
+  res.status(HTTP_STATUS.OK).json({ ...paginatedSchools, data: fakeCountData });
 };
 
 /**
@@ -129,7 +136,7 @@ export const getSchools = async (req: Request, res: Response): Promise<void> => 
  *
  * @param {Request} req - The Request object.
  * @param {Response} res - The Response object.
- * @returns {Promise<void>} A Promise that resolves once the school object is sent.
+ * @returns {Promise<ISchoolResponse>} A Promise that resolves once the school object is sent.
  *
  * @throws {Error} If an error occurs while retrieving the school object.
  * @throws {TypeError} If the school ID is not valid.
@@ -144,5 +151,41 @@ export const getSchool = async (req: Request, res: Response): Promise<void> => {
   if (school.status === SchoolStatus.Deleted) throw new NotFoundError(ErrorMessages.SchoolNotFound);
   if (school.status === SchoolStatus.Inactive) throw new NotFoundError(ErrorMessages.SchoolInactive);
 
-  res.status(HTTP_STATUS.OK).json(school);
+  res.status(HTTP_STATUS.OK).json({ ...school, studentsCount: 0, coursesCount: 0, teachersCount: 0, staffsCount: 0 });
+};
+
+/**
+ * Retrieves paginated users based on the provided request parameters.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ *
+ * @returns {Promise<void>} - A promise that resolves when the users are retrieved and the response is sent.
+ */
+// TODO: Users collection qilinganda tugatib qo'yich kerak
+export const getUsersBySchoolId = async (req: Request, res: Response): Promise<any> => {
+  const page = req.query.page as string | undefined;
+  const limit = req.query.limit as string | undefined;
+
+  res
+    .status(HTTP_STATUS.OK)
+    .json({ data: [], totalData: 0, totalPages: 0, page: page, limit: limit, hasNextPage: false, hasPrevPage: false });
+};
+
+/**
+ * Retrieves paginated courses based on the provided request parameters.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ *
+ * @returns {Promise<void>} - A promise that resolves when the courses are retrieved and the response is sent.
+ */
+// TODO: Courses collection qilinganda tugatib qo'yich kerak
+export const getCoursesBySchoolId = async (req: Request, res: Response): Promise<any> => {
+  const page = req.query.page as string | undefined;
+  const limit = req.query.limit as string | undefined;
+
+  res
+    .status(HTTP_STATUS.OK)
+    .json({ data: [], totalData: 0, totalPages: 0, page: page, limit: limit, hasNextPage: false, hasPrevPage: false });
 };
