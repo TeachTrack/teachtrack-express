@@ -33,7 +33,7 @@ export const createSchool = async (req: Request<ISchoolRegisterBody>, res: Respo
 
   res
     .status(HTTP_STATUS.CREATED)
-    .json({ ...school, studentsCount: 0, coursesCount: 0, teachersCount: 0, staffsCount: 0 });
+    .json({ ...school.toJSON(), studentsCount: 0, coursesCount: 0, teachersCount: 0, staffsCount: 0 });
 };
 
 /**
