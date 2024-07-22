@@ -4,9 +4,9 @@ import helmet from 'helmet';
 import cors from 'cors';
 import { config } from './configs/config';
 import { routes } from './routes';
-import Logger from 'bunyan';
 import { globalErrorHandler } from './helper/global-error-handler';
 import { connectRedis } from './configs/redis.config';
+import { ErrorMessages } from './utils/enums/error-messages.enum';
 
 const app = express();
 
@@ -23,7 +23,7 @@ const corsOptions = {
     if (allowedOrigins.includes(origin as string) || !origin) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error(ErrorMessages.NotAllowedByCors));
     }
   },
   optionsSuccessStatus: 200,
