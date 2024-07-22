@@ -4,9 +4,9 @@ import helmet from 'helmet';
 import cors from 'cors';
 import { config } from './configs/config';
 import { routes } from './routes';
-import Logger from 'bunyan';
 import { globalErrorHandler } from './helper/global-error-handler';
 import { connectRedis } from './configs/redis.config';
+import { ErrorMessages } from './utils/enums/error-messages.enum';
 
 const app = express();
 
@@ -14,7 +14,22 @@ app.set('subdomain offset', 1);
 
 // Security middlewares
 app.use(helmet());
-app.use(cors({ origin: config.corsUrl, optionsSuccessStatus: 200 }));
+
+// CORS configuration
+const allowedOrigins = [config.corsUrl, 'http://127.0.0.1:5173'].filter(Boolean);
+
+const corsOptions = {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    if (allowedOrigins.includes(origin as string) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error(ErrorMessages.NotAllowedByCors));
+    }
+  },
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 
 // Standard middlewares
 app.use(json({ limit: '50mb' }));

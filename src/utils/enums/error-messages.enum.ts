@@ -16,4 +16,5 @@ export enum ErrorMessages {
   BadRequest = 'BAD_REQUEST',
   SomethingWentWrong = 'SOMETHING_WENT_WRONG',
   InternalServerError = 'INTERNAL_SERVER_ERROR',
+  NotAllowedByCors = 'NOT_ALLOWED_BY_CORS',
 }
