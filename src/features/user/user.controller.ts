@@ -3,7 +3,13 @@ import { ErrorMessages } from '../../utils/enums/error-messages.enum';
 import { Request, Response } from '../../utils/interfaces/express.interface';
 import { UserStatus } from './utils/user.enum';
 import { ILoginUserBody, IRegisterUserBody, IUpdateUserBody, IUserDocument } from './utils/user.interface';
-import { getActiveUserById, getUserById, getUserByIdAndUpdate, getUserByPhoneNumberAndSchoolId } from './user.service';
+import {
+  getActiveUserById,
+  getUserById,
+  getUserByIdAndSchoolId,
+  getUserByIdAndUpdate,
+  getUserByPhoneNumberAndSchoolId,
+} from './user.service';
 import HTTP_STATUS from 'http-status-codes';
 import { generateToken } from './utils/user.utils';
 import Paginator from '../../utils/helpers/pagination';
@@ -132,8 +138,14 @@ export const getStaffsController = async (req: Request, res: Response): Promise<
  */
 export const getMeController = async (req: Request, res: Response): Promise<void> => {
   const userId = req?.user?._id;
+  const schoolId = req.school?.id as ObjectId;
   const objectUserId = new Types.ObjectId(userId);
-  const user = await getActiveUserById(objectUserId);
+  const user = await getUserByIdAndSchoolId(objectUserId, schoolId);
+
+  if (!user || user?.status === UserStatus.DELETED) throw new NotFoundError(ErrorMessages.UserNotFound);
+
+  if (user.status === UserStatus.INACTIVE) throw new BadRequestError(ErrorMessages.UserInactive);
+
   res.status(HTTP_STATUS.OK).json(user);
 };
 

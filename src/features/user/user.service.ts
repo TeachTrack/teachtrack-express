@@ -13,6 +13,13 @@ export const getUserByPhoneNumberAndSchoolId = async (
   return (await UserModel.findOne({ phoneNumber, schoolId })) as IUserDocument | undefined;
 };
 
+export const getUserByIdAndSchoolId = async (
+  userId: ObjectId,
+  schoolId: ObjectId,
+): Promise<IUserDocument | undefined> => {
+  return (await UserModel.findOne({ _id: userId, schoolId })) as IUserDocument | undefined;
+};
+
 export const getActiveUserById = async (id: ObjectId): Promise<IUserDocument> => {
   const existingUser = (await UserModel.findById(id)) as IUserDocument | undefined;
 
