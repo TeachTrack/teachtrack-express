@@ -1,4 +1,4 @@
-import express, { NextFunction, json, urlencoded } from 'express';
+import express, { json, urlencoded } from 'express';
 import { connectDB } from './configs/db.config';
 import helmet from 'helmet';
 import cors from 'cors';
@@ -6,10 +6,11 @@ import { config } from './configs/config';
 import { routes } from './routes';
 import Logger from 'bunyan';
 import { globalErrorHandler } from './helper/global-error-handler';
+import { connectRedis } from './configs/redis.config';
 
 const app = express();
 
-const log: Logger = Logger.createLogger({ name: 'app' });
+app.set('subdomain offset', 1);
 
 // Security middlewares
 app.use(helmet());
@@ -42,5 +43,6 @@ globalErrorHandler(app);
 
 // Connect DB
 connectDB();
+connectRedis();
 
 export default app;

@@ -3,20 +3,24 @@ import { ISchoolDocument, ISchoolRegisterBody, ISchoolUpdateBody } from './utils
 import { SchoolModel } from './school.model';
 import HTTP_STATUS from 'http-status-codes';
 import Paginator from '../../utils/helpers/pagination';
-import { getActiveSchoolById, getSchoolById, getSchoolBySubdomain, updateSchoolById } from './school.service';
+import { getPaginatedUsersBySchoolId, getSchoolById, getSchoolBySubdomain, updateSchoolById } from './school.service';
 import { Types } from 'mongoose';
 import { getActiveUserById } from '../user/user.service';
 import { UserRoles } from '../user/utils/user.enum';
 import { BadRequestError, NotFoundError } from '../../middlewares/error-handler.middleware';
 import { ErrorMessages } from '../../utils/enums/error-messages.enum';
 import { SchoolStatus } from './utils/school.enum';
+import { SuccessMessages } from '../../utils/enums/success-messages.enum';
+import pagination from '../../utils/helpers/pagination';
+import { IUserDocument } from '../user/utils/user.interface';
+import { ObjectId } from 'mongodb';
 
 /**
  * Creates a new school with the provided information.
  *
  * @param {Request<ISchoolRegisterBody>} req - The request object containing the school information.
  * @param {Response} res - The response object used to send the created school as a JSON response.
- * @returns {Promise<void>} A promise that resolves when the school is created and saved successfully.
+ * @returns {Promise<ISchoolResponse>} A promise that resolves when the school is created and saved successfully.
  * @throws {BadRequestError} If a school with the specified subdomain already exists.
  */
 export const createSchool = async (req: Request<ISchoolRegisterBody>, res: Response): Promise<void> => {
@@ -26,11 +30,13 @@ export const createSchool = async (req: Request<ISchoolRegisterBody>, res: Respo
 
   if (existingSchool) throw new BadRequestError(ErrorMessages.SubdomainAlreadyExists);
 
-  const school = await SchoolModel.create({ ...newSchool, subdomain, directorId: null });
+  const school = await SchoolModel.create({ ...newSchool, subdomain });
 
   await school.save();
 
-  res.status(HTTP_STATUS.CREATED).json(school);
+  res
+    .status(HTTP_STATUS.CREATED)
+    .json({ ...school.toJSON(), studentsCount: 0, coursesCount: 0, teachersCount: 0, staffsCount: 0 });
 };
 
 /**
@@ -61,9 +67,11 @@ export const updateSchool = async (req: Request<ISchoolUpdateBody>, res: Respons
     status: status || existingSchool.status,
   } as ISchoolDocument;
 
-  const updatedSchool = await updateSchoolById(existingSchool.id, updatingSchool);
+  const updatedSchool = await updateSchoolById(existingSchool._id, updatingSchool);
 
-  res.status(HTTP_STATUS.OK).json(updatedSchool);
+  if (!updatedSchool) throw new BadRequestError(ErrorMessages.SomethingWentWrong);
+
+  res.status(HTTP_STATUS.OK).json({ message: SuccessMessages.UpdatedSuccessfully });
 };
 
 /**
@@ -95,9 +103,11 @@ export const assignDirectorSchool = async (req: Request<{ userId: string }>, res
     directorId: user.id,
   } as ISchoolDocument;
 
-  const updatedSchool = await updateSchoolById(school.id, updatingSchool);
+  const updatedSchool = await updateSchoolById(school._id, updatingSchool);
 
-  res.status(HTTP_STATUS.OK).json(updatedSchool);
+  if (!updatedSchool) throw new BadRequestError(ErrorMessages.SomethingWentWrong);
+
+  res.status(HTTP_STATUS.OK).json({ message: SuccessMessages.UpdatedSuccessfully });
 };
 
 /**
@@ -106,17 +116,23 @@ export const assignDirectorSchool = async (req: Request<{ userId: string }>, res
  * @param {Request} req - The request object.
  * @param {Response} res - The response object.
  *
- * @returns {Promise<void>} - A promise that resolves when the schools are retrieved and the response is sent.
+ * @returns {Promise<ISchoolResponse[]>} - A promise that resolves when the schools are retrieved and the response is sent.
  */
 export const getSchools = async (req: Request, res: Response): Promise<void> => {
   const page = req.query.page as string | undefined;
   const limit = req.query.limit as string | undefined;
 
+  // TODO: move to service
   const schools = new Paginator<ISchoolDocument>(SchoolModel, { page, limit });
 
   const paginatedSchools = await schools.paginate();
 
-  res.status(HTTP_STATUS.OK).json(paginatedSchools);
+  // TODO: Student, Courses, Teachers, Staffs collectionlari qilinganda real datalar bilan qo'shib ketish kerak
+  const fakeCountData = paginatedSchools.data.map(school => {
+    return { ...school.toJSON(), studentsCount: 0, coursesCount: 0, teachersCount: 0, staffsCount: 0 };
+  });
+
+  res.status(HTTP_STATUS.OK).json({ ...paginatedSchools, data: fakeCountData });
 };
 
 /**
@@ -124,7 +140,7 @@ export const getSchools = async (req: Request, res: Response): Promise<void> => 
  *
  * @param {Request} req - The Request object.
  * @param {Response} res - The Response object.
- * @returns {Promise<void>} A Promise that resolves once the school object is sent.
+ * @returns {Promise<ISchoolResponse>} A Promise that resolves once the school object is sent.
  *
  * @throws {Error} If an error occurs while retrieving the school object.
  * @throws {TypeError} If the school ID is not valid.
@@ -133,7 +149,47 @@ export const getSchool = async (req: Request, res: Response): Promise<void> => {
   const schoolId = req.params.id;
   const schoolObjectId = new Types.ObjectId(schoolId);
 
-  const school = await getActiveSchoolById(schoolObjectId);
+  const school = await getSchoolById(schoolObjectId);
 
-  res.status(HTTP_STATUS.OK).json(school);
+  if (!school) throw new NotFoundError(ErrorMessages.SchoolNotFound);
+  if (school.status === SchoolStatus.Deleted) throw new NotFoundError(ErrorMessages.SchoolNotFound);
+  if (school.status === SchoolStatus.Inactive) throw new NotFoundError(ErrorMessages.SchoolInactive);
+
+  res.status(HTTP_STATUS.OK).json({ ...school, studentsCount: 0, coursesCount: 0, teachersCount: 0, staffsCount: 0 });
+};
+
+/**
+ * Retrieves paginated users based on the provided request parameters.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ *
+ * @returns {Promise<void>} - A promise that resolves when the users are retrieved and the response is sent.
+ */
+export const getUsersBySchoolId = async (req: Request, res: Response): Promise<any> => {
+  const page = req.query.page as string | undefined;
+  const limit = req.query.limit as string | undefined;
+  const schoolId = req.params.id;
+  const schoolObjectId = new Types.ObjectId(schoolId);
+
+  const users = await getPaginatedUsersBySchoolId(schoolObjectId, { page, limit });
+  res.status(HTTP_STATUS.OK).json(users);
+};
+
+/**
+ * Retrieves paginated courses based on the provided request parameters.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ *
+ * @returns {Promise<void>} - A promise that resolves when the courses are retrieved and the response is sent.
+ */
+// TODO: Courses collection qilinganda tugatib qo'yich kerak
+export const getCoursesBySchoolId = async (req: Request, res: Response): Promise<any> => {
+  const page = req.query.page as string | undefined;
+  const limit = req.query.limit as string | undefined;
+
+  res
+    .status(HTTP_STATUS.OK)
+    .json({ data: [], totalData: 0, totalPages: 0, page: page, limit: limit, hasNextPage: false, hasPrevPage: false });
 };

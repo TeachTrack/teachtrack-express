@@ -1,28 +1,90 @@
 import { ObjectId } from 'mongodb';
 import { SchoolModel } from './school.model';
-import { NotFoundError } from '../../middlewares/error-handler.middleware';
-import { ErrorMessages } from '../../utils/enums/error-messages.enum';
-import { ISchoolDocument } from './utils/school.interface';
-import { SchoolStatus } from './utils/school.enum';
+import { ISchoolDocument, ISchoolResponse } from './utils/school.interface';
+import { getDocumentFromCache, removeCachedDocument } from '../../configs/redis.config';
+import Paginator, { PaginatedResult, PaginateOptions } from '../../utils/helpers/pagination';
+import { IUserDocument } from '../user/utils/user.interface';
+import { UserModel } from '../user/user.model';
 
-export const getActiveSchoolById = async (id: ObjectId): Promise<ISchoolDocument> => {
-  const school = (await SchoolModel.findById(id)) as ISchoolDocument;
+const populateDirectorForSchool = async (schoolId: ObjectId) => {
+  const aggregation = (await SchoolModel.aggregate([
+    { $match: { _id: schoolId } },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'directorId',
+        foreignField: '_id',
+        as: 'director',
+      },
+    },
+    {
+      $unwind: {
+        path: '$director',
+        preserveNullAndEmptyArrays: true, // This ensures the director field is included even if it's null
+      },
+    },
+    {
+      $addFields: {
+        director: {
+          $cond: {
+            if: { $eq: ['$director', null] },
+            then: {
+              _id: null,
+              fullName: null,
+              phoneNumber: null,
+            },
+            else: '$director',
+          },
+        },
+      },
+    },
+    {
+      $replaceRoot: {
+        newRoot: {
+          $mergeObjects: [
+            '$$ROOT',
+            {
+              director: {
+                _id: '$director._id',
+                fullName: '$director.fullName',
+                phoneNumber: '$director.phoneNumber',
+              },
+            },
+          ],
+        },
+      },
+    },
+  ])) as ISchoolResponse[];
 
-  if (!school) throw new NotFoundError(ErrorMessages.SchoolNotFound);
-  if (school.status === SchoolStatus.Deleted) throw new NotFoundError(ErrorMessages.SchoolNotFound);
-  if (school.status === SchoolStatus.Inactive) throw new NotFoundError(ErrorMessages.SchoolInactive);
-
-  return school;
+  return aggregation[0];
 };
 
-export const getSchoolById = async (id: ObjectId): Promise<ISchoolDocument | undefined> => {
-  return (await SchoolModel.findById(id)) as ISchoolDocument | undefined;
+export const getSchoolById = async (id: ObjectId): Promise<ISchoolResponse | undefined> => {
+  const cacheKey = `school:id:${id.toString()}`;
+  const fetchFunction = async (): Promise<ISchoolResponse> => await populateDirectorForSchool(id);
+
+  return await getDocumentFromCache<ISchoolResponse>(cacheKey, fetchFunction);
 };
 
 export const getSchoolBySubdomain = async (subdomain: string): Promise<ISchoolDocument | undefined> => {
-  return (await SchoolModel.findOne({ subdomain })) as ISchoolDocument | undefined;
+  const cacheKey = `school:subdomain:${subdomain}`;
+  const fetchFunction = async () => (await SchoolModel.findOne({ subdomain })) as ISchoolDocument | undefined;
+
+  return await getDocumentFromCache<ISchoolDocument>(cacheKey, fetchFunction);
 };
 
 export const updateSchoolById = async (id: ObjectId, school: ISchoolDocument): Promise<ISchoolDocument> => {
-  return (await SchoolModel.findByIdAndUpdate(id, school, { new: true })) as ISchoolDocument;
+  const updatedSchool = (await SchoolModel.findByIdAndUpdate(id, school, { new: true })) as ISchoolDocument;
+
+  await removeCachedDocument(`school:id:${id}`);
+  return updatedSchool;
+};
+
+export const getPaginatedUsersBySchoolId = async (
+  id: ObjectId,
+  options: PaginateOptions,
+): Promise<PaginatedResult<IUserDocument>> => {
+  const users = new Paginator<IUserDocument>(UserModel, options, { schoolId: id });
+
+  return await users.paginate();
 };

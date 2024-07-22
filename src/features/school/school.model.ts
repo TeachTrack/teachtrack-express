@@ -9,10 +9,18 @@ const schoolModel: Schema = new Schema(
     address: { type: String, require: true },
     subdomain: { type: String, require: true, unique: true },
     status: { type: String, default: SchoolStatus.Inactive, enum: SchoolStatus },
-    directorId: { type: Schema.Types.ObjectId, ref: 'Users', require: true },
+    directorId: { type: Schema.Types.ObjectId, ref: 'Users', default: null },
     logo: { type: String },
+    price: { type: Number, required: true },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    toJSON: {
+      transform(_, ret) {
+        delete ret.__v;
+      },
+    },
+  },
 );
 
 export const SchoolModel = mongoose.model<ISchoolDocument>('Schools', schoolModel);

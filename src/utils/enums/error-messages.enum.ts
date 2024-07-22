@@ -1,5 +1,5 @@
 export enum ErrorMessages {
-  UserNotFoud = 'USER_NOT_FOUND',
+  UserNotFound = 'USER_NOT_FOUND',
   InvalidCredentials = 'INVALID_CREDENTIALS',
   UserInactive = 'USER_INACTIVE',
   UserAlreadyExists = 'USER_ALREADY_EXISTS',
@@ -12,5 +12,8 @@ export enum ErrorMessages {
   SchoolAlreadyExists = 'SCHOOL_ALREADY_EXISTS',
   DirectorRoleMustBeAdmin = 'DIRECTOR_ROLE_MUST_BE_ADMIN',
   SubdomainAlreadyExists = 'SUBDOMAIN_ALREADY_EXISTS',
-  VALIDATION_ERROR="VALIDATION_ERROR"
+  VALIDATION_ERROR = 'VALIDATION_ERROR',
+  BadRequest = 'BAD_REQUEST',
+  SomethingWentWrong = 'SOMETHING_WENT_WRONG',
+  InternalServerError = 'INTERNAL_SERVER_ERROR',
 }

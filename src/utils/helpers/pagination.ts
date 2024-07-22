@@ -1,12 +1,12 @@
 import { Document, Model } from 'mongoose';
 import { config } from '../../configs/config';
 
-interface PaginateOptions {
+export interface PaginateOptions {
   page?: string;
   limit?: string;
 }
 
-interface PaginatedResult<T> {
+export interface PaginatedResult<T> {
   data: T[];
   totalData: number;
   totalPages: number;
@@ -18,8 +18,8 @@ interface PaginatedResult<T> {
 
 class Paginator<T extends Document> {
   private model: Model<T>;
-  private page: number;
-  private limit: number;
+  private readonly page: number;
+  private readonly limit: number;
   private query: Record<string, any>;
   private projection: Record<string, any> | undefined;
   private sort: Record<string, any> | undefined;
