@@ -76,7 +76,9 @@ export const getSchoolBySubdomain = async (subdomain: string): Promise<ISchoolDo
 export const updateSchoolById = async (id: ObjectId, school: ISchoolDocument): Promise<ISchoolDocument> => {
   const updatedSchool = (await SchoolModel.findByIdAndUpdate(id, school, { new: true })) as ISchoolDocument;
 
-  await removeCachedDocument(`school:id:${id}`);
+  const keysToRemove = [`school:id:${id}`, `school:subdomain:${updatedSchool.subdomain}`, `users:school:id:${id}`];
+
+  keysToRemove.forEach(removeCachedDocument);
   return updatedSchool;
 };
 
@@ -86,5 +88,12 @@ export const getPaginatedUsersBySchoolId = async (
 ): Promise<PaginatedResult<IUserDocument>> => {
   const users = new Paginator<IUserDocument>(UserModel, options, { schoolId: id });
 
-  return await users.paginate();
+  const fetcher = async () => await users.paginate();
+
+  const cacheKey = `users:school:id:${id.toString()}`;
+
+  return (await getDocumentFromCache<PaginatedResult<IUserDocument>>(
+    cacheKey,
+    fetcher,
+  )) as PaginatedResult<IUserDocument>;
 };

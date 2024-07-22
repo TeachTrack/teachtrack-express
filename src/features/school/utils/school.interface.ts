@@ -26,6 +26,7 @@ export interface ISchoolUpdateBody {
   address?: string;
   logo?: string;
   status?: SchoolStatus;
+  price?: string;
 }
 
 export interface ISchoolResponse

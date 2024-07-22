@@ -9,11 +9,7 @@ import { getActiveUserById } from '../user/user.service';
 import { UserRoles } from '../user/utils/user.enum';
 import { BadRequestError, NotFoundError } from '../../middlewares/error-handler.middleware';
 import { ErrorMessages } from '../../utils/enums/error-messages.enum';
-import { SchoolStatus } from './utils/school.enum';
 import { SuccessMessages } from '../../utils/enums/success-messages.enum';
-import pagination from '../../utils/helpers/pagination';
-import { IUserDocument } from '../user/utils/user.interface';
-import { ObjectId } from 'mongodb';
 
 /**
  * Creates a new school with the provided information.
@@ -52,12 +48,11 @@ export const updateSchool = async (req: Request<ISchoolUpdateBody>, res: Respons
   const { id } = req.params;
   const schoolId = new Types.ObjectId(id);
 
-  const { address, name, phoneNumber, logo, status } = req.body;
+  const { address, name, phoneNumber, logo, price, status } = req.body;
 
   const existingSchool = await getSchoolById(schoolId);
 
-  if (!existingSchool || existingSchool.status === SchoolStatus.Deleted)
-    throw new NotFoundError(ErrorMessages.SchoolNotFound);
+  if (!existingSchool) throw new NotFoundError(ErrorMessages.SchoolNotFound);
 
   const updatingSchool: ISchoolDocument = {
     name: name || existingSchool.name,
@@ -65,6 +60,7 @@ export const updateSchool = async (req: Request<ISchoolUpdateBody>, res: Respons
     address: address || existingSchool.address,
     logo: logo || existingSchool.logo,
     status: status || existingSchool.status,
+    price: price || existingSchool.price,
   } as ISchoolDocument;
 
   const updatedSchool = await updateSchoolById(existingSchool._id, updatingSchool);
@@ -93,7 +89,7 @@ export const assignDirectorSchool = async (req: Request<{ userId: string }>, res
 
   const school = await getSchoolById(schoolObjectId);
 
-  if (!school || school.status === SchoolStatus.Deleted) throw new NotFoundError(ErrorMessages.SchoolNotFound);
+  if (!school) throw new NotFoundError(ErrorMessages.SchoolNotFound);
 
   const user = await getActiveUserById(userObjectId);
 
@@ -152,8 +148,6 @@ export const getSchool = async (req: Request, res: Response): Promise<void> => {
   const school = await getSchoolById(schoolObjectId);
 
   if (!school) throw new NotFoundError(ErrorMessages.SchoolNotFound);
-  if (school.status === SchoolStatus.Deleted) throw new NotFoundError(ErrorMessages.SchoolNotFound);
-  if (school.status === SchoolStatus.Inactive) throw new NotFoundError(ErrorMessages.SchoolInactive);
 
   res.status(HTTP_STATUS.OK).json({ ...school, studentsCount: 0, coursesCount: 0, teachersCount: 0, staffsCount: 0 });
 };

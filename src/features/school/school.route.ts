@@ -28,7 +28,7 @@ schoolRouter.put(
   '/school/:id',
   validator(updateSchoolValidator),
   authRequired,
-  requireAccess(UserRoles.SUPER_ADMIN),
+  requireAccess(UserRoles.ADMIN),
   asyncWrapper(updateSchool),
 );
 schoolRouter.patch(
@@ -39,7 +39,7 @@ schoolRouter.patch(
   asyncWrapper(assignDirectorSchool),
 );
 schoolRouter.get('/schools', authRequired, requireAccess(UserRoles.SUPER_ADMIN), asyncWrapper(getSchools));
-schoolRouter.get('/school/:id', authRequired, requireAccess(UserRoles.SUPER_ADMIN), asyncWrapper(getSchool));
+schoolRouter.get('/school/:id', authRequired, requireAccess(UserRoles.ADMIN), asyncWrapper(getSchool));
 schoolRouter.get(
   '/school/:id/users',
   authRequired,

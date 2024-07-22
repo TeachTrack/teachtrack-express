@@ -27,6 +27,7 @@ export const updateSchoolValidator: ObjectSchema = Joi.object().keys({
   status: Joi.string()
     .valid(...Object.values(SchoolStatus))
     .optional(),
+  price: Joi.number().optional(),
 });
 
 export const assignDirectorValidator: ObjectSchema = Joi.object().keys({
