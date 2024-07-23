@@ -5,6 +5,7 @@ export const config = {
   environment: process.env.NODE_ENV,
   corsUrl: process.env.CORS_URL,
   jwtSecret: process.env.JWT_SECRET || 'jwtsecred009233',
+  dashboard_subdomain: 'dashboard',
   pagination: {
     page: '1',
     limit: '10',

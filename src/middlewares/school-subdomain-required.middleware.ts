@@ -5,6 +5,7 @@ import HTTP_STATUS from 'http-status-codes';
 import { ErrorMessages } from '../utils/enums/error-messages.enum';
 import { SchoolStatus } from '../features/school/utils/school.enum';
 import { UserRoles } from '../features/user/utils/user.enum';
+import { config } from '../configs/config';
 
 export const schoolSubdomainRequired = async (req: Request, res: Response, next: NextFunction) => {
   const schoolSubdomain = req.subdomains[0];
@@ -20,8 +21,9 @@ export const schoolSubdomainRequired = async (req: Request, res: Response, next:
   }
 
   const isUserSuperAdmin = req.user?.role === UserRoles.SUPER_ADMIN;
+  const isSchoolDashboard = existingSchool.subdomain === config.dashboard_subdomain;
 
-  if (!isUserSuperAdmin) {
+  if (!isUserSuperAdmin && !isSchoolDashboard) {
     const isAuthorized = !!req.user?.schoolId;
 
     if (isAuthorized && req.user?.schoolId !== existingSchool?._id.toString()) {
