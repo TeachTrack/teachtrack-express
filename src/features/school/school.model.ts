@@ -2,6 +2,7 @@ import mongoose, { Schema } from 'mongoose';
 import { ISchoolDocument } from './utils/school.interface';
 import { SchoolStatus } from './utils/school.enum';
 
+// TODO: call_center_number, official_page
 const schoolModel: Schema = new Schema(
   {
     name: { type: String, require: true },

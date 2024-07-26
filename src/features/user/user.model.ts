@@ -4,6 +4,7 @@ import { IUserDocument } from './utils/user.interface';
 import { NextFunction } from 'express';
 import bcrypt from 'bcrypt';
 
+// TODO: Rasm qo'shish
 const userSchema: Schema = new Schema(
   {
     fullName: { type: String, required: true },
